@@ -24,14 +24,14 @@ O projeto utiliza validação de dados, documentação OpenAPI/Swagger e monitor
 - Maven
 - JUnit / Spring Boot Test
 
-As versões acima foram identificadas no `pom.xml` atual do projeto. fileciteturn158file0L2-L6
+As versões acima foram identificadas no `pom.xml` atual do projeto. 
 
 ## Requisitos
 
 - Java 21+
 - Maven
 
-O projeto também possui Maven Wrapper (`mvnw` e `mvnw.cmd`), permitindo executar os comandos Maven sem depender de uma instalação global do Maven. fileciteturn157file0L2-L2
+O projeto também possui Maven Wrapper (`mvnw` e `mvnw.cmd`), permitindo executar os comandos Maven sem depender de uma instalação global do Maven. 
 
 ## Executando o projeto
 
@@ -104,7 +104,7 @@ mvnw.cmd test
 
 O projeto utiliza Maven e Spring Boot. O arquivo `pom.xml` centraliza as dependências e configurações de build.
 
-A estrutura de código está organizada dentro do diretório `src`, seguindo a estrutura convencional de aplicações Spring Boot. fileciteturn157file0L2-L2
+A estrutura de código está organizada dentro do diretório `src`, seguindo a estrutura convencional de aplicações Spring Boot. 
 
 ## Build
 
