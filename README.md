@@ -1,148 +1,170 @@
 # API de Transações e Estatísticas
 
-## Descrição
-
-Esta é uma API REST para registro de transações e cálculo de estatísticas com base nas transações recebidas. O projeto segue boas práticas de desenvolvimento e implementa regras específicas de validação para garantir a integridade dos dados.
-
----
+API REST desenvolvida em Java e Spring Boot para registrar transações financeiras e calcular estatísticas sobre os registros realizados em uma janela temporal configurável.
 
 ## Funcionalidades
 
-### **1. Registrar Transação — `POST /transacao`**
+- Registro de transações com validação de valor e data/hora.
+- Remoção de todas as transações armazenadas.
+- Cálculo de quantidade, soma, média, menor e maior valor das transações dentro do intervalo definido.
+- Documentação interativa dos endpoints com OpenAPI e Swagger UI.
+- Monitoramento da aplicação com Spring Boot Actuator, Prometheus e Grafana.
+- Testes automatizados para os componentes da aplicação.
 
-A API **somente aceitará** transações que atendam aos seguintes critérios:
+## Tecnologias
 
-- Possuam os campos **valor** e **dataHora** preenchidos.
-- A transação **não pode ocorrer no futuro**.
-- O valor deve ser **maior ou igual a 0**.
-
-#### **Possíveis respostas:**
-
-- **201 Created** — A transação é válida e foi registrada com sucesso.
-- **422 Unprocessable Entity** — A transação foi rejeitada por violar uma ou mais regras de validação.
-- **400 Bad Request** — Requisição inválida (ex.: JSON malformado).
-
----
-
-### **2. Limpar Transações — `DELETE /transacao`**
-
-Remove todas as transações atualmente armazenadas.
-
-#### **Possível resposta:**
-
-- **200 OK** — Todos os dados foram apagados com sucesso.
-
----
-
-### **3. Estatísticas das Transações — `GET /estatistica`**
-
-Retorna estatísticas calculadas **somente sobre as transações registradas nos últimos 60 segundos**.
-
-As estatísticas incluem:
-
-- **count** → Quantidade de transações
-- **sum** → Soma total dos valores
-- **avg** → Média dos valores
-- **min** → Menor valor registrado
-- **max** → Maior valor registrado
-
-#### **Possível resposta:**
-
-- **200 OK** — Retorna um JSON com os campos `count`, `sum`, `avg`, `min` e `max`.
-    - Caso não existam transações nos últimos 60 segundos, todos os valores devem ser **0**.
-
----
-
-## Tecnologias Utilizadas
-
-- **Backend**: Java 21+ com Spring Boot
-- **Testes**: JUnit 5, Mockito, Jacoco
-- **Documentação**: Swagger UI
-- **Monitoramento**: Spring Boot Actuator, Prometheus, Grafana
-- **Mapeamento de DTOs**: MapStruct
-- **Logging**: Lombok (@Slf4j)
-- **Containerização**: Docker
-- **Controle de Exceções**: Tratamento de erros com `@RestControllerAdvice`
-
----
+- **Linguagem:** Java 21
+- **Framework:** Spring Boot 3
+- **Build:** Maven
+- **API:** Spring Web e Bean Validation
+- **Documentação:** Springdoc OpenAPI / Swagger UI
+- **Persistência e mapeamento:** Spring Data, PostgreSQL, H2 e MapStruct
+- **Testes:** JUnit 5, Mockito, Spring Boot Test e JaCoCo
+- **Monitoramento:** Spring Boot Actuator, Prometheus e Grafana
+- **Containerização:** Docker e Docker Compose
+- **Utilitários:** Lombok
 
 ## Requisitos
 
-- Java 21+
+- Java 21 ou superior
 - Maven
-- Docker(opcional)
+- Docker e Docker Compose (opcionais, para execução em containers)
 
----
+## Como executar
 
-## Executando o Projeto(Sem Docker)
+### Execução local
 
 1. Clone o repositório:
 
-```bash
-git https://github.com/bispobr/Java-Spring-banco-desafio.git
-```
----
+   ```bash
+   git clone https://github.com/bispobr/Java-Spring-banco-desafio.git
+   ```
 
-## Executando com docker (Opcional)
+2. Acesse a pasta do projeto:
 
-1. Gere a Imagem Docker e inicie o containner:
+   ```bash
+   cd Java-Spring-banco-desafio
+   ```
+
+3. Execute a aplicação com Maven:
+
+   ```bash
+   ./mvnw spring-boot:run
+   ```
+
+   No Windows, utilize `mvnw.cmd spring-boot:run`. Caso o projeto não inclua o Maven Wrapper, execute `mvn spring-boot:run` com o Maven instalado.
+
+### Execução com Docker
+
+Na raiz do projeto, execute:
 
 ```bash
 docker compose up --build
 ```
----
 
-## Acessando a API
+O Docker Compose inicia os serviços definidos na configuração do projeto, incluindo a aplicação e as ferramentas de monitoramento.
 
-- **Base URL:** http://localhost:8080
-- **Documentação (Swagger):**  http://localhost:8080/swagger-ui/index.html#/
-- **Health Check (Actuator):**  http://localhost:8080/actuator/health
--  **Grafana (Docker):**  http://localhost:3000
-- - usuario: admin
-- - senha: admin
-- **Prometheus (Docker):**  http://localhost:9090
+## Endpoints
 
----
+| Método | Endpoint | Descrição |
+| --- | --- | --- |
+| `POST` | `/transacao` | Registra uma transação após validar os dados enviados. |
+| `DELETE` | `/transacao` | Remove todas as transações armazenadas. |
+| `GET` | `/estatistica` | Retorna estatísticas das transações dentro da janela temporal configurada. |
 
-## Endpoints da API
-**transação**
+### Registrar transação
 
-1. **Adicionar transação**
+**Requisição**
 
-```http request
-POST /transacao 
+```http
+POST /transacao
 Content-Type: application/json
 ```
 
-**Body**
+**Corpo**
 
-```http request
+```json
 {
-  "valor": 0,
-  "dataHora": "2010-02-05T14:19:19.437Z"
+  "valor": 125.50,
+  "dataHora": "2025-01-15T14:19:19.437Z"
 }
 ```
-| Parâmetro | Tipo       | Descrição                           |
-|:----------| :--------- | :---------------------------------- |
-| `valor`   | `BigDecimal` |   Nome do cliente(**Obrigatório**)
-| `dataHora`     | `OffsetDateTime` |   Cpf do cliente(**Obrigatório**) 
 
+- `valor`: valor monetário da transação, obrigatório e maior ou igual a zero.
+- `dataHora`: data e hora da transação, obrigatória e não pode estar no futuro.
 
-3. **Remover todas transações**
+**Respostas**
 
+- `201 Created`: transação registrada.
+- `400 Bad Request`: requisição inválida, como JSON malformado.
+- `422 Unprocessable Entity`: dados rejeitados pelas regras de validação.
 
-```http request
+### Remover transações
+
+**Requisição**
+
+```http
 DELETE /transacao
 ```
 
-**Estatistica**
+Remove todos os registros de transações armazenados.
 
-1. **Gerar estatisticas**
+**Resposta**
 
-```http request
+- `200 OK`: operação concluída.
+
+### Consultar estatísticas
+
+**Requisição**
+
+```http
 GET /estatistica
 ```
 
+O endpoint aceita o parâmetro opcional `intervalSeconds`, que define a janela temporal em segundos. Quando omitido, o intervalo padrão é de 60 segundos.
 
+Exemplo:
 
+```http
+GET /estatistica?intervalSeconds=120
+```
 
+A resposta contém os seguintes campos:
+
+| Campo | Descrição |
+| --- | --- |
+| `count` | Quantidade de transações consideradas. |
+| `sum` | Soma dos valores das transações. |
+| `avg` | Média dos valores das transações. |
+| `min` | Menor valor encontrado. |
+| `max` | Maior valor encontrado. |
+
+Quando não há transações na janela consultada, os campos estatísticos retornam zero.
+
+## Documentação e monitoramento
+
+Com a aplicação em execução local, os serviços podem ser acessados pelos endereços abaixo:
+
+| Serviço | URL |
+| --- | --- |
+| API | `http://localhost:8080` |
+| Swagger UI | `http://localhost:8080/swagger-ui/index.html` |
+| Actuator Health | `http://localhost:8080/actuator/health` |
+| Prometheus (Docker) | `http://localhost:9090` |
+| Grafana (Docker) | `http://localhost:3000` |
+
+As credenciais de acesso inicial do Grafana, quando aplicáveis, são definidas na configuração do ambiente Docker.
+
+## Testes
+
+Para executar os testes automatizados com Maven:
+
+```bash
+./mvnw test
+```
+
+No Windows, utilize `mvnw.cmd test`. O projeto também possui configuração do JaCoCo para coleta de métricas de cobertura.
+
+## Estrutura do projeto
+
+O código é organizado por responsabilidades, incluindo controladores REST, DTOs, tratamento de exceções, mapeadores, modelos, repositórios e serviços. A configuração de containers e monitoramento fica na raiz do projeto.
